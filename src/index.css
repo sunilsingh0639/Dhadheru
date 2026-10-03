@@ -1,0 +1,66 @@
+:root {
+  font-family: 'Manrope', 'Noto Sans Devanagari', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #292d28;
+  background: #f7f5ef;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  overflow-x: hidden;
+  background: #f7f5ef;
+}
+
+img {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2,
+.brand-copy strong {
+  font-family: 'DM Serif Display', 'Noto Sans Devanagari', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0;
+}

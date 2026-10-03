@@ -1,18 +1,18 @@
 import type { GalleryItem, Review, VillageContent, VillagePlace } from '../types'
 
 export const villageContent: VillageContent = {
-  intro: 'ढढेरू भामूवान, also known as Dhadheru Bhamuwan, is a village in Bidasar tehsil of Churu district, Rajasthan, India.',
-  location: 'Dhadheru Bhamuwan, Bidasar, Churu, Rajasthan, India',
+  intro: 'ढढेरू , also known as Dhadheru , is a village in Bidasar tehsil of Churu district, Rajasthan, India.',
+  location: 'Dhadheru , Bidasar, Churu, Rajasthan, India',
   community: 'Community stories and local details are being gathered from residents. Share a firsthand account to help build this village archive.',
   education: 'School name and details have not yet been verified. This section is editable when confirmed with the community.',
-  healthcare: 'A Primary Health Centre is listed for Dhadheru Bhamuwan, Sujangarh, Churu. Contact details and directions are awaiting confirmation.',
+  healthcare: 'A Primary Health Centre is listed for Dhadheru , Sujangarh, Churu. Contact details and directions are awaiting confirmation.',
   religion: 'Temple names and details are not published until the local community confirms them.',
   culture: 'Local customs and cultural details are being collected with residents. Add verified stories here.',
   highlights: ['Bidasar tehsil', 'Churu district', 'Rajasthan, India'],
 }
 
 export const stats = [
-  { label: 'Village', value: 'Dhadheru Bhamuwan', accent: 'emerald' },
+  { label: 'Village', value: 'Dhadheru ', accent: 'emerald' },
   { label: 'Tehsil', value: 'Bidasar', accent: 'amber' },
   { label: 'District', value: 'Churu', accent: 'sky' },
   { label: 'State', value: 'Rajasthan, India', accent: 'rose' },
@@ -21,26 +21,26 @@ export const stats = [
 export const places: VillagePlace[] = [
   {
     id: 'village-dhadheru',
-    name: 'Dhadheru Bhamuwan',
+    name: 'Dhadheru ',
     category: 'Village',
     description: 'A village in Bidasar tehsil, Churu district, Rajasthan. Local stories and visitor information are being gathered.',
     location: 'Bidasar, Churu, Rajasthan',
-    imageLabel: 'Verified Dhadheru Bhamuwan village photograph',
+    imageLabel: 'Verified Dhadheru  village photograph',
   },
   {
     id: 'gram-panchayat',
     name: 'Gram Panchayat',
     category: 'Civic information',
-    description: 'Government references list Dhadheru Bhagwan as the Gram Panchayat. The Dhadheru Bhamuwan naming is retained for the village identity.',
-    location: 'Dhadheru Bhamuwan / Dhadheru Bhagwan',
+    description: 'Government references list Dhadheru Bhagwan as the Gram Panchayat. The Dhadheru  naming is retained for the village identity.',
+    location: 'Dhadheru  / Dhadheru Bhagwan',
     imageLabel: 'Verified Gram Panchayat photograph',
   },
   {
     id: 'primary-health-centre',
-    name: 'Primary Health Centre, Dhadheru Bhamuwan',
+    name: 'Primary Health Centre, Dhadheru ',
     category: 'Healthcare',
-    description: 'A Primary Health Centre is listed for Dhadheru Bhamuwan, Sujangarh, Churu. Confirm current services before visiting.',
-    location: 'Dhadheru Bhamuwan, Sujangarh, Churu',
+    description: 'A Primary Health Centre is listed for Dhadheru , Sujangarh, Churu. Confirm current services before visiting.',
+    location: 'Dhadheru , Sujangarh, Churu',
     imageLabel: 'Verified Primary Health Centre photograph',
   },
 ]
@@ -48,9 +48,9 @@ export const places: VillagePlace[] = [
 export const galleryItems: GalleryItem[] = [
   {
     id: 'gallery-village',
-    title: 'Dhadheru Bhamuwan',
+    title: 'Dhadheru ',
     category: 'Village',
-    description: 'Photo placeholder. Replace with a verified photograph of Dhadheru Bhamuwan.',
+    description: 'Photo placeholder. Replace with a verified photograph of Dhadheru .',
   },
   {
     id: 'gallery-life',

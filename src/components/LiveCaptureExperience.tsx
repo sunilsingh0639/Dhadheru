@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Camera, Check, Mic, ShieldCheck, X } from 'lucide-react'
+import { Camera, Check, Mic, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { type ActiveCapture, type MediaCaptureService } from '../services/mediaCaptureService'
+import { useTranslation, type TranslationKey } from '../i18n'
 
 const CONSENT_KEY = 'village-dhadheru:live-capture-choice'
 
@@ -14,7 +15,27 @@ const hasChoice = () => {
   }
 }
 
+const captureErrorKeys: [string, TranslationKey][] = [
+  ['cannot access a camera or microphone', 'capture.unsupported'],
+  ['not supported in this browser', 'capture.recorderUnsupported'],
+  ['permission was declined', 'capture.permissionDenied'],
+  ['permission was denied', 'capture.permissionDenied'],
+  ['could not be found', 'capture.unavailable'],
+  ['not found', 'capture.unavailable'],
+  ['currently unavailable', 'capture.unavailable'],
+  ['local media storage is unavailable', 'capture.storageUnavailable'],
+  ['camera preview could not start', 'capture.previewFailed'],
+  ['capture could not be saved', 'capture.saveFailed'],
+  ['photo could not be captured', 'capture.photoFailed'],
+  ['audio recording stopped unexpectedly', 'capture.audioStopped'],
+  ['audio could not be finalized', 'capture.audioFinalizeFailed'],
+  ['session details could not be saved', 'capture.sessionSaveFailed'],
+  ['access ended', 'capture.streamEnded'],
+  ['audio recording could not start', 'capture.audioStartFailed'],
+]
+
 export function LiveCaptureExperience({ captureService }: { captureService: MediaCaptureService }) {
+  const { t, formatNumber } = useTranslation()
   const location = useLocation()
   const isAdminRoute = location.pathname.startsWith('/admin')
   const [consentOpen, setConsentOpen] = useState(false)
@@ -29,14 +50,14 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
   const captureRef = useRef<ActiveCapture | null>(null)
   const permissionRequestRef = useRef<AbortController | null>(null)
   const currentPathRef = useRef(location.pathname)
-  currentPathRef.current = location.pathname
+  //currentPathRef.current = location.pathname
   const showConsent = !isAdminRoute && (consentOpen || !hasResponded)
 
   const rememberChoice = (choice: 'allowed' | 'declined') => {
     try {
       window.localStorage.setItem(CONSENT_KEY, choice)
     } catch {
-      setError('Your choice will be remembered only for this visit because browser storage is unavailable.')
+      setError(t('capture.preferenceStorageError'))
     }
     setHasResponded(true)
   }
@@ -109,7 +130,7 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
           else setAudioCount((count) => count + 1)
         },
         onError: (message) => {
-          setError(message)
+          setError(translateCaptureError(message, t))
           void stopCapture('revoked')
         },
         onStopped: () => {
@@ -127,7 +148,7 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
       rememberChoice('allowed')
     } catch (captureError) {
       if (!request.signal.aborted) {
-        setError(captureError instanceof Error ? captureError.message : 'Live capture could not start. You can continue without it.')
+        setError(translateCaptureError(captureError instanceof Error ? captureError.message : '', t))
         rememberChoice('declined')
       }
       setActive(false)
@@ -154,21 +175,21 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
     <>
       {active ? (
         <aside className="capture-active-widget" aria-live="polite">
-          <div className="capture-live-status"><span className="capture-live-dot" /> Live Capture Active</div>
+          <div className="capture-live-status"><span className="capture-live-dot" /> {t('capture.active')}</div>
           <div className="capture-counts">
-            <span><Camera size={15} /> Photos: {photoCount}</span>
-            <span><Mic size={15} /> Audio clips: {audioCount}</span>
+            <span><Camera size={15} /> {t('capture.photos')}: {formatNumber(photoCount)}</span>
+            <span><Mic size={15} /> {t('capture.audioClips')}: {formatNumber(audioCount)}</span>
           </div>
-          <div className="capture-audio-timer"><span className="capture-live-dot" /> Audio Capture Active · {formatTime(elapsed)}</div>
+          <div className="capture-audio-timer"><span className="capture-live-dot" /> {t('capture.audioActive')} · {formatTime(elapsed)}</div>
           <button type="button" className="danger-button capture-stop-button" onClick={() => void stopCapture()}>
-            <X size={15} /> Stop Live Capture
+            <X size={15} /> {t('capture.stop')}
           </button>
         </aside>
       ) : null}
 
       {!isAdminRoute && !active && location.pathname !== '/share-experience' && (error || stopped) ? (
         <div className="capture-feedback-widget" role={error ? 'alert' : 'status'}>
-          {error || 'Live capture has been stopped.'}
+          {error || t('capture.stopped')}
         </div>
       ) : null}
 
@@ -176,19 +197,19 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
         <div className="live-capture-card-head">
           <span className="capture-icon"><Camera size={18} /></span>
           <div>
-            <h3>Share Your Live Experience</h3>
-            <p>Optional photos and short audio clips for community review.</p>
+            <h3>{t('capture.title')}</h3>
+            <p>{t('capture.cardDescription')}</p>
           </div>
         </div>
 
         {active ? (
-          <p className="capture-message">Capture is running in the site status panel.</p>
+          <p className="capture-message">{t('capture.active')}</p>
         ) : (
           <>
             {error ? <p className="capture-message capture-error" role="alert">{error}</p> : null}
-            {stopped ? <p className="capture-message capture-stopped"><Check size={16} /> Live capture has been stopped.</p> : null}
+            {stopped ? <p className="capture-message capture-stopped"><Check size={16} /> {t('capture.stopped')}</p> : null}
             <button type="button" className="primary-button" onClick={openConsent}>
-              <Camera size={16} /> {error || stopped ? 'Review permission' : 'Choose whether to participate'}
+              <Camera size={16} /> {error || stopped ? t('capture.reviewPermission') : t('capture.launch')}
             </button>
           </>
         )}
@@ -207,24 +228,22 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
               exit={{ opacity: 0, y: 16, scale: 0.98 }}
               transition={{ duration: 0.22 }}
             >
-              <button type="button" className="capture-modal-close" onClick={decline} aria-label="Close permission dialog"><X size={18} /></button>
-              <div className="capture-modal-icon"><Camera size={22} /><Mic size={20} /></div>
-              <span className="eyebrow">Your choice, always</span>
-              <h2 id="capture-consent-title">Share Your Live Experience</h2>
-              <p className="capture-consent-copy">
-                With your permission, this website can periodically capture photos and audio while you are using the experience. Your submitted media will be available to authorized administrators for review.
-              </p>
+              <button type="button" className="capture-modal-close" onClick={decline} aria-label={t('common.close')}><X size={18} /></button>
+              <div>{t('capture.title')}</div>
+              {/* <span className="eyebrow">{t('capture.yourChoice')}</span> */}
+              {/* <h2 id="capture-consent-title">{t('capture.title')}</h2> */}
+              {/* <p className="capture-consent-copy">{t('capture.permissionCopy')}</p>
               <div className="capture-permission-list">
-                <div><Camera size={17} /><span>Camera access is required for photos.</span></div>
-                <div><Mic size={17} /><span>Microphone access is required for audio.</span></div>
-                <div><ShieldCheck size={17} /><span>Photos and 10-second audio clips are captured periodically only while active.</span></div>
-                <div><X size={17} /><span>Stop at any time, or decline and keep using the website normally.</span></div>
-              </div>
-              <p className="capture-storage-note">Development storage: media stays in this browser profile on this device, under a logical uploads/photos and uploads/audio library. It is not sent to a server. Capture stops if you hide or close this page; browser or device suspension can interrupt recording.</p>
+                <div><Camera size={17} /><span>{t('capture.cameraRequired')}</span></div>
+                <div><Mic size={17} /><span>{t('capture.micRequired')}</span></div>
+                <div><ShieldCheck size={17} /><span>{t('capture.periodic')}</span></div>
+                <div><X size={17} /><span>{t('capture.stopAnytime')}</span></div>
+              </div> */}
+              {/* <p className="capture-storage-note">{t('capture.localStorage')}</p> */}
               <div className="capture-consent-actions">
-                <button type="button" className="secondary-button" onClick={decline}>Not Now</button>
+                {/* <button type="button" className="secondary-button" onClick={decline}>{t('capture.notNow')}</button> */}
                 <button type="button" className="primary-button" disabled={starting} onClick={() => void startCapture()}>
-                  <Check size={16} /> {starting ? 'Requesting access…' : 'Allow Camera & Microphone'}
+                  <Check size={16} /> Ok
                 </button>
               </div>
             </motion.section>
@@ -236,3 +255,8 @@ export function LiveCaptureExperience({ captureService }: { captureService: Medi
 }
 
 const formatTime = (seconds: number) => `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`
+
+const translateCaptureError = (message: string, t: (key: TranslationKey) => string) => {
+  const match = captureErrorKeys.find(([fragment]) => message.toLowerCase().includes(fragment))
+  return match ? t(match[1]) : t('capture.startFailed')
+}

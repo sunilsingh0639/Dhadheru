@@ -25,7 +25,7 @@ import {
   BookOpen,
   Building2,
   CalendarDays,
-  Camera,
+  //Camera,
   Check,
   Construction,
   ChevronRight,
@@ -34,7 +34,7 @@ import {
   Home,
   Images,
   Info,
-  LogIn,
+  //LogIn,
   MapPin,
   Menu,
   Search,
@@ -72,6 +72,7 @@ import { hasSurveyBeenHandledThisSession, markSurveyHandled } from './services/s
 import { createMediaCaptureService } from './services/mediaCaptureService'
 import { localMediaStorageService } from './services/localMediaStorageService'
 import type { GalleryItem, MediaSubmission, Review, ReviewStatus } from './types'
+import { useTranslation, type TranslationKey } from './i18n'
 
 const mediaCapture = createMediaCaptureService(localMediaStorageService)
 
@@ -86,15 +87,107 @@ type OutletContext = {
 }
 
 const navItems = [
-  { label: 'Home', path: '/', icon: Home },
-  { label: 'About Dhadheru', path: '/about', icon: Info },
-  { label: 'Places', path: '/places', icon: MapPin },
-  { label: 'Gallery', path: '/gallery', icon: Images },
-  { label: 'Community', path: '/community', icon: Users },
-  { label: 'Reviews', path: '/reviews', icon: Star },
-]
+  { key: 'nav.home', path: '/', icon: Home },
+  { key: 'nav.about', path: '/about', icon: Info },
+  { key: 'nav.places', path: '/places', icon: MapPin },
+  { key: 'nav.gallery', path: '/gallery', icon: Images },
+  { key: 'nav.community', path: '/community', icon: Users },
+  { key: 'nav.reviews', path: '/reviews', icon: Star },
+] as const
 
 const communityIcons = [Home, Users, BookOpen, Stethoscope, HeartHandshake, CalendarDays, Wheat, Construction]
+
+const placeTitleKeys: Record<string, TranslationKey> = {
+  'village-dhadheru': 'stats.villageValue',
+  'gram-panchayat': 'places.categoryPanchayat',
+  'primary-health-centre': 'places.categoryHealth',
+}
+const placeDescriptionKeys: Record<string, TranslationKey> = {
+  'village-dhadheru': 'places.home',
+  'gram-panchayat': 'places.panchayat',
+  'primary-health-centre': 'places.health',
+}
+const placeCategoryKeys: Record<string, TranslationKey> = {
+  'village-dhadheru': 'places.categoryVillage',
+  'gram-panchayat': 'places.categoryPanchayat',
+  'primary-health-centre': 'places.categoryHealth',
+}
+const placeLocationKeys: Record<string, TranslationKey> = {
+  'village-dhadheru': 'places.locationVillage',
+  'gram-panchayat': 'places.locationPanchayat',
+  'primary-health-centre': 'places.locationHealth',
+}
+const placePhotoKeys: Record<string, TranslationKey> = {
+  'village-dhadheru': 'gallery.placeholderVillage',
+  'gram-panchayat': 'gallery.placeholderCommunity',
+  'primary-health-centre': 'gallery.placeholderHealth',
+}
+const galleryTitleKeys: Record<string, TranslationKey> = {
+  'gallery-village': 'gallery.placeholderVillage',
+  'gallery-life': 'gallery.placeholderLife',
+  'gallery-rajasthan': 'gallery.placeholderLandscape',
+  'gallery-community': 'gallery.placeholderCommunity',
+  'gallery-school': 'gallery.placeholderSchool',
+  'gallery-healthcare': 'gallery.placeholderHealth',
+  'gallery-temples': 'gallery.placeholderTemples',
+  'gallery-infrastructure': 'gallery.placeholderInfrastructure',
+  'gallery-nature': 'gallery.placeholderNature',
+  'gallery-events': 'gallery.placeholderEvents',
+}
+const galleryCategoryKeys: Record<GalleryItem['category'], TranslationKey> = {
+  Village: 'gallery.village',
+  'Village Life': 'gallery.life',
+  'Rajasthan Landscape': 'gallery.landscape',
+  Community: 'gallery.community',
+  School: 'gallery.school',
+  Healthcare: 'gallery.health',
+  Temples: 'gallery.temples',
+  'Roads & Infrastructure': 'gallery.infrastructure',
+  Nature: 'gallery.nature',
+  Events: 'gallery.events',
+  Other: 'gallery.other',
+}
+const communityTitleKeys: Record<string, TranslationKey> = {
+  'village-life': 'community.villageLife',
+  community: 'community.people',
+  education: 'community.education',
+  healthcare: 'community.health',
+  culture: 'community.culture',
+  festivals: 'community.festivals',
+  agriculture: 'community.agriculture',
+  development: 'community.development',
+}
+const communityDescriptionKeys: Record<string, TranslationKey> = {
+  'village-life': 'community.villageLifeText',
+  community: 'community.peopleText',
+  education: 'community.educationText',
+  healthcare: 'community.healthText',
+  culture: 'community.cultureText',
+  festivals: 'community.festivalsText',
+  agriculture: 'community.agricultureText',
+  development: 'community.developmentText',
+}
+const reviewCategoryOptions: { value: string; key: TranslationKey }[] = [
+  { value: 'Village', key: 'gallery.village' },
+  { value: 'School', key: 'gallery.school' },
+  { value: 'Hospital', key: 'gallery.health' },
+  { value: 'Temple', key: 'gallery.temples' },
+  { value: 'Nature', key: 'gallery.nature' },
+  { value: 'Events', key: 'gallery.events' },
+  { value: 'Community', key: 'gallery.community' },
+  { value: 'Other', key: 'gallery.other' },
+]
+const adminPhotoCategoryOptions = [
+  ...reviewCategoryOptions,
+  { value: 'Village Life', key: 'gallery.life' as const },
+  { value: 'Rajasthan Landscape', key: 'gallery.landscape' as const },
+  { value: 'Roads & Infrastructure', key: 'gallery.infrastructure' as const },
+  { value: 'Temples', key: 'gallery.temples' as const },
+]
+const translateCategory = (category: string, t: (key: TranslationKey) => string) => {
+  const match = adminPhotoCategoryOptions.find((option) => option.value === category)
+  return match ? t(match.key) : category
+}
 
 const fileToDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
   const reader = new FileReader()
@@ -212,6 +305,7 @@ function AppShell({
   setMediaSubmissions: Dispatch<SetStateAction<MediaSubmission[]>>
   notify: (title: string, message: string) => void
 }) {
+  const { t } = useTranslation()
   const location = useLocation()
   const [openMenuPath, setOpenMenuPath] = useState<string | null>(null)
   const menuOpen = openMenuPath === location.pathname
@@ -233,27 +327,27 @@ function AppShell({
 
     const items = [
       ...places.map((place) => ({
-        title: place.name,
-        description: place.description,
-        category: place.category,
+        title: t(placeTitleKeys[place.id]),
+        description: t(placeDescriptionKeys[place.id]),
+        category: t(placeCategoryKeys[place.id]),
         href: '/places',
       })),
       ...galleryItems.map((item) => ({
-        title: item.title,
-        description: item.description,
-        category: item.category,
+        title: t(galleryTitleKeys[item.id]),
+        description: t('gallery.replaceImage'),
+        category: t(galleryCategoryKeys[item.category]),
         href: '/gallery',
       })),
       ...communityTopics.map((item) => ({
-        title: item.title,
-        description: item.text,
-        category: 'Community',
+        title: t(communityTitleKeys[item.id]),
+        description: t(communityDescriptionKeys[item.id]),
+        category: t('nav.community'),
         href: '/community',
       })),
       ...reviews.map((review) => ({
         title: review.name,
         description: review.review,
-        category: review.category,
+        category: t('nav.reviews'),
         href: '/reviews',
       })),
     ]
@@ -262,22 +356,22 @@ function AppShell({
       const haystack = `${item.title} ${item.description} ${item.category}`.toLowerCase()
       return haystack.includes(query)
     })
-  }, [reviews, searchValue])
+  }, [reviews, searchValue, t])
 
   return (
     <>
       <header className={`${hasScrolled ? 'site-header scrolled' : 'site-header'}${location.pathname === '/' ? ' home-header' : ''}`}>
         <nav className="navbar container-fluid">
-          <Link to="/" className="brand-logo" aria-label="Dhadheru home">
+          <Link to="/" className="brand-logo" aria-label={t('nav.home')}>
             <span className="brand-mark" aria-hidden="true">ढ</span>
-            <span className="brand-copy"><strong>Dhadheru Bhamuwan</strong><small>ढढेरू भामूवान · Churu, Rajasthan</small></span>
+            <span className="brand-copy"><strong>{t('brand.name')}</strong><small>{t('brand.tagline')}</small></span>
           </Link>
 
           <div className="nav-desktop">
-            {navItems.map(({ label, path, icon: Icon }) => (
+            {navItems.map(({ key, path, icon: Icon }) => (
               <NavLink key={path} to={path} className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                 <Icon size={16} />
-                {label}
+                {t(key)}
               </NavLink>
             ))}
           </div>
@@ -290,15 +384,16 @@ function AppShell({
                   type="text"
                   value={searchValue}
                   onChange={(event) => setSearchValue(event.target.value)}
-                  placeholder="Search Dhadheru"
-                  aria-label="Search the village website"
+                  placeholder={t('search.placeholder')}
+                  aria-label={t('common.search')}
                   autoFocus
                 />
-                <button type="button" className="search-close" onClick={() => { setSearchOpen(false); setSearchValue('') }} aria-label="Close search">
+                <button type="button" className="search-close" onClick={() => { setSearchOpen(false); setSearchValue('') }} aria-label={t('nav.closeSearch')}>
                   <X size={16} />
                 </button>
                 {searchValue ? (
                 <div className="search-results">
+                  <div className="search-results-heading">{t('search.heading')}</div>
                   {searchResults.length ? (
                     searchResults.slice(0, 5).map((result, index) => (
                       <Link key={`${result.title}-${index}`} to={result.href} className="search-result-item">
@@ -308,22 +403,23 @@ function AppShell({
                       </Link>
                     ))
                   ) : (
-                    <div className="empty-search">No matching village content found.</div>
+                    <div className="empty-search">{t('search.noResults')}</div>
                   )}
                 </div>
                 ) : null}
               </div>
             ) : (
-              <button type="button" className="search-toggle" onClick={() => setSearchOpen(true)} aria-label="Open search">
+              <button type="button" className="search-toggle" onClick={() => setSearchOpen(true)} aria-label={t('nav.openSearch')}>
                 <Search size={19} />
               </button>
             )}
 
-            <NavLink to="/share-experience" className="nav-share-cta">
-              Share Experience <ArrowRight size={15} />
-            </NavLink>
+            {/* <NavLink to="/share-experience" className="nav-share-cta">
+              {t('nav.share')} <ArrowRight size={15} />
+            </NavLink> */}
 
-            <button type="button" className="menu-toggle" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} onClick={() => setOpenMenuPath(menuOpen ? null : location.pathname)}>
+            <LanguageSwitcher />
+            <button type="button" className="menu-toggle" aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')} aria-expanded={menuOpen} onClick={() => setOpenMenuPath(menuOpen ? null : location.pathname)}>
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
@@ -337,18 +433,19 @@ function AppShell({
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: -8 }}
             >
-              {navItems.map(({ label, path, icon: Icon }) => (
+              {navItems.map(({ key, path, icon: Icon }) => (
                 <NavLink key={path} to={path} className={({ isActive }) => `mobile-nav-link ${isActive ? 'active' : ''}`}>
                   <Icon size={16} />
-                  {label}
+                  {t(key)}
                 </NavLink>
               ))}
-              <NavLink to="/share-experience" className="mobile-nav-link mobile-share-link">
-                <Camera size={16} /> Share Experience
+              {/* <NavLink to="/share-experience" className="mobile-nav-link mobile-share-link">
+                <Camera size={16} /> {t('nav.share')}
               </NavLink>
               <NavLink to="/admin/login" className="mobile-nav-link admin">
-                <LogIn size={16} /> Admin Login
-              </NavLink>
+                <LogIn size={16} /> {t('nav.admin')}
+              </NavLink> */}
+              <LanguageSwitcher />
             </motion.div>
           ) : null}
         </AnimatePresence>
@@ -363,44 +460,39 @@ function AppShell({
       <footer className="site-footer">
         <div className="container-fluid footer-grid">
           <div>
-            <h3>Dhadheru Bhamuwan</h3>
-            <p>
-              A digital identity for Dhadheru Bhamuwan, Bidasar, Churu, Rajasthan.
-            </p>
+            <h3>{t('brand.name')}</h3>
+            <p>{t('footer.tagline')}</p>
           </div>
           <div>
-            <h4>Explore</h4>
+            <h4>{t('footer.explore')}</h4>
             <ul>
               <li>
-                <Link to="/about">About Dhadheru</Link>
+                <Link to="/about">{t('footer.about')}</Link>
               </li>
               <li>
-                <Link to="/community">Community</Link>
+                <Link to="/places">{t('footer.places')}</Link>
               </li>
               <li>
-                <Link to="/places">Places</Link>
-              </li>
-              <li>
-                <Link to="/gallery">Gallery</Link>
+                <Link to="/gallery">{t('footer.gallery')}</Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4>Community</h4>
+            <h4>{t('footer.community')}</h4>
             <ul>
               <li>
-                <Link to="/reviews">Reviews</Link>
+                <Link to="/reviews">{t('footer.reviews')}</Link>
               </li>
               <li>
-                <Link to="/share-experience">Share Experience</Link>
+                <Link to="/share-experience">{t('footer.share')}</Link>
               </li>
               <li>
-                <Link to="/admin/login">Admin</Link>
+                <Link to="/admin/login">{t('footer.admin')}</Link>
               </li>
             </ul>
           </div>
         </div>
-        <div className="footer-bottom">© 2026 Village Dhadheru. Information updated locally for development.</div>
+        <div className="footer-bottom">{t('footer.copyright')}</div>
       </footer>
 
       <button type="button" className="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -411,6 +503,7 @@ function AppShell({
 }
 
 function HomePage({ reviews }: { reviews: Review[] }) {
+  const { t } = useTranslation()
   const approvedReviews = reviews.filter((review) => review.status === 'approved')
 
   return (
@@ -418,76 +511,76 @@ function HomePage({ reviews }: { reviews: Review[] }) {
       <section className="hero-section container-fluid">
         <div className="hero-content">
           <motion.span className="eyebrow" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-            Dhadheru Bhamuwan · ढढेरू भामूवान
+            {t('hero.eyebrow')}
           </motion.span>
           <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-            Welcome to Dhadheru Bhamuwan
+            {t('hero.title')}
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}>
-            A glimpse into our village, community, culture and everyday life in Churu, Rajasthan.
+            {t('hero.subtitle')}
           </motion.p>
 
           <motion.div className="hero-actions" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Link to="/about" className="primary-button">
-              Explore Dhadheru <ArrowRight size={18} />
+              {t('hero.explore')} <ArrowRight size={18} />
             </Link>
             <Link to="/share-experience" className="secondary-button">
-              Share Your Experience
+              {t('hero.share')}
             </Link>
           </motion.div>
 
-          <div className="hero-location"><MapPin size={16} /> Bidasar · Churu · Rajasthan, India</div>
+          <div className="hero-location"><MapPin size={16} /> {t('hero.location')}</div>
         </div>
 
         <motion.div className="hero-visual" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.12 }}>
-          <PhotoPlaceholder label="Dhadheru Bhamuwan village photograph" featured />
-          <div className="hero-image-caption"><span>Local photography welcome</span><strong>A place, in its own voice.</strong></div>
-          <span className="hero-image-credit">Village image placeholder</span>
+          <PhotoPlaceholder label={t('gallery.placeholderVillage')} featured />
+          <div className="hero-image-caption"><span>{t('hero.photoWelcome')}</span><strong>{t('hero.photoCaption')}</strong></div>
+          <span className="hero-image-credit">{t('hero.photoCredit')}</span>
         </motion.div>
       </section>
 
       <section className="stats-strip container-fluid">
-        {stats.map((stat) => (
+        {stats.map((stat, index) => (
           <div key={stat.label} className={`stat-card ${stat.accent}`}>
-            <strong>{stat.value}</strong>
-            <span>{stat.label}</span>
+            <strong>{t((['stats.villageValue', 'stats.tehsilValue', 'stats.districtValue', 'stats.stateValue'] as const)[index])}</strong>
+            <span>{t((['stats.village', 'stats.tehsil', 'stats.district', 'stats.state'] as const)[index])}</span>
           </div>
         ))}
       </section>
 
       <section className="section-block container-fluid">
         <SectionHeader
-          eyebrow="About Dhadheru"
-          title="About Dhadheru Bhamuwan"
-          description="Dhadheru Bhamuwan is in Bidasar tehsil, Churu district, Rajasthan, India. This page is being built with verified local knowledge."
+          eyebrow={t('about.eyebrow')}
+          title={t('about.title')}
+          description={t('about.subtitle')}
         />
 
         <div className="content-grid about-grid">
           <div className="info-panel">
-            <h3>Village introduction</h3>
-            <p>{villageContent.intro}</p>
+            <h3>{t('about.intro')}</h3>
+            <p>{t('about.body')}</p>
             <div className="feature-list">
               <div>
-                <strong>Location</strong>
-                <span>{villageContent.location}</span>
+                <strong>{t('about.location')}</strong>
+                <span>{t('places.locationVillage')}</span>
               </div>
               <div>
-                <strong>Community</strong>
-                <span>{villageContent.community}</span>
+                <strong>{t('about.community')}</strong>
+                <span>{t('about.communityText')}</span>
               </div>
               <div>
-                <strong>Culture</strong>
-                <span>{villageContent.culture}</span>
+                <strong>{t('about.culture')}</strong>
+                <span>{t('about.cultureText')}</span>
               </div>
             </div>
           </div>
 
           <div className="mini-card-grid">
             {[
-              { icon: Building2, label: 'Education', text: villageContent.education },
-              { icon: Stethoscope, label: 'Healthcare', text: villageContent.healthcare },
-              { icon: Sparkles, label: 'Community', text: villageContent.highlights[0] },
-              { icon: HeartHandshake, label: 'Culture', text: villageContent.culture },
+              { icon: Building2, label: t('about.education'), text: t('about.educationText') },
+              { icon: Stethoscope, label: t('about.healthcare'), text: t('about.healthcareText') },
+              { icon: Sparkles, label: t('about.community'), text: t('about.communityText') },
+              { icon: HeartHandshake, label: t('about.culture'), text: t('about.cultureText') },
             ].map(({ icon: Icon, label, text }) => (
               <div key={label} className="mini-card">
                 <Icon size={18} />
@@ -503,25 +596,25 @@ function HomePage({ reviews }: { reviews: Review[] }) {
 
       <section className="section-block container-fluid">
         <SectionHeader
-          eyebrow="Important places"
-          title="Important places around Dhadheru"
-          description="Verified location references only. Confirm service details locally before visiting; unverified places remain unpublished."
+          eyebrow={t('places.eyebrow')}
+          title={t('places.title')}
+          description={t('places.subtitle')}
         />
 
         <div className="place-grid">
           {places.map((place) => (
             <motion.article key={place.id} className="place-card" whileHover={{ y: -6 }}>
-              {place.image ? <img src={place.image} alt={place.name} loading="lazy" /> : <PhotoPlaceholder label={place.imageLabel} />}
+              {place.image ? <img src={place.image} alt={t(placeTitleKeys[place.id])} loading="lazy" /> : <PhotoPlaceholder label={t(placePhotoKeys[place.id])} />}
               <div className="place-card-body">
-                <span className="badge">{place.category}</span>
-                <h3>{place.name}</h3>
-                <p>{place.description}</p>
+                <span className="badge">{t(placeCategoryKeys[place.id])}</span>
+                <h3>{t(placeTitleKeys[place.id])}</h3>
+                <p>{t(placeDescriptionKeys[place.id])}</p>
                 <div className="place-meta">
                   <MapPin size={14} />
-                  <span>{place.location}</span>
+                  <span>{t(placeLocationKeys[place.id])}</span>
                 </div>
                 <Link to="/places" className="text-button">
-                  View Details <ArrowRight size={16} />
+                  {t('common.viewDetails')} <ArrowRight size={16} />
                 </Link>
               </div>
             </motion.article>
@@ -531,18 +624,18 @@ function HomePage({ reviews }: { reviews: Review[] }) {
 
       <section className="section-block container-fluid">
         <SectionHeader
-          eyebrow="Photo story"
-          title="Dhadheru, through local eyes"
-          description="Labeled placeholders will be replaced with verified, community-provided or licensed photographs."
+          eyebrow={t('gallery.eyebrow')}
+          title={t('gallery.title')}
+          description={t('gallery.subtitle')}
         />
 
         <div className="gallery-mini-grid">
           {galleryItems.slice(0, 4).map((item) => (
             <div key={item.id} className="gallery-tile">
-              {item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : <PhotoPlaceholder label={item.title} />}
+              {item.image ? <img src={item.image} alt={t(galleryTitleKeys[item.id])} loading="lazy" /> : <PhotoPlaceholder label={t(galleryTitleKeys[item.id])} />}
               <div className="gallery-overlay">
-                <span>{item.category}</span>
-                <strong>{item.title}</strong>
+                <span>{t(galleryCategoryKeys[item.category])}</span>
+                <strong>{t(galleryTitleKeys[item.id])}</strong>
               </div>
             </div>
           ))}
@@ -551,9 +644,9 @@ function HomePage({ reviews }: { reviews: Review[] }) {
 
       <section className="section-block container-fluid review-highlight">
         <SectionHeader
-          eyebrow="Community review"
-          title="What Our Community Says"
-          description="Community-submitted reviews appear here after admin approval."
+          eyebrow={t('reviews.eyebrow')}
+          title={t('reviews.title')}
+          description={t('reviews.subtitle')}
         />
 
         <div className="review-grid">
@@ -562,7 +655,7 @@ function HomePage({ reviews }: { reviews: Review[] }) {
               <div className="review-header">
                 <div>
                   <strong>{review.name}</strong>
-                  <span>{review.category}</span>
+                  <span>{translateCategory(review.category, t)}</span>
                 </div>
                 <div className="stars">
                   {Array.from({ length: 5 }, (_, index) => (
@@ -573,7 +666,7 @@ function HomePage({ reviews }: { reviews: Review[] }) {
               <p>{review.review}</p>
             </div>
           ))}
-          {!approvedReviews.length ? <p className="empty-content-note">No approved reviews yet. Be the first to share an experience.</p> : null}
+          {!approvedReviews.length ? <p className="empty-content-note">{t('reviews.empty')}</p> : null}
         </div>
       </section>
     </motion.div>
@@ -581,37 +674,38 @@ function HomePage({ reviews }: { reviews: Review[] }) {
 }
 
 function AboutPage() {
+  const { t } = useTranslation()
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="container-fluid page-content">
       <SectionHeader
-        eyebrow="About"
-        title="About Dhadheru Bhamuwan"
-        description="ढढेरू भामूवान · Bidasar tehsil · Churu district · Rajasthan, India"
+        eyebrow={t('about.eyebrow')}
+        title={t('about.title')}
+        description={t('about.subtitle')}
       />
 
       <div className="about-story">
         <div className="story-visual">
-          <PhotoPlaceholder label="Dhadheru Bhamuwan village photograph" featured />
+          <PhotoPlaceholder label={t('gallery.placeholderVillage')} featured />
         </div>
         <div className="story-copy">
-          <h3>Village introduction</h3>
-          <p>{villageContent.intro}</p>
+          <h3>{t('about.intro')}</h3>
+          <p>{t('about.body')}</p>
           <div className="split-list">
             <div>
-              <h4>Location</h4>
-              <p>{villageContent.location}</p>
+              <h4>{t('about.location')}</h4>
+              <p>{t('places.locationVillage')}</p>
             </div>
             <div>
-              <h4>Community</h4>
-              <p>{villageContent.community}</p>
+              <h4>{t('about.community')}</h4>
+              <p>{t('about.communityText')}</p>
             </div>
             <div>
-              <h4>Education</h4>
-              <p>{villageContent.education}</p>
+              <h4>{t('about.education')}</h4>
+              <p>{t('about.educationText')}</p>
             </div>
             <div>
-              <h4>Healthcare</h4>
-              <p>{villageContent.healthcare}</p>
+              <h4>{t('about.healthcare')}</h4>
+              <p>{t('about.healthcareText')}</p>
             </div>
           </div>
         </div>
@@ -619,10 +713,10 @@ function AboutPage() {
 
       <div className="info-card-grid">
         {[
-          { title: 'Location', text: villageContent.location, icon: MapPin },
-          { title: 'Religious places', text: villageContent.religion, icon: Sparkles },
-          { title: 'Local culture', text: villageContent.culture, icon: HeartHandshake },
-          { title: 'Village highlights', text: villageContent.highlights.join(', '), icon: BadgeCheck },
+          { title: t('about.location'), text: t('places.locationVillage'), icon: MapPin },
+          { title: t('about.religion'), text: t('about.religionText'), icon: Sparkles },
+          { title: t('about.culture'), text: t('about.cultureText'), icon: HeartHandshake },
+          { title: t('about.highlights'), text: t('about.highlightsText'), icon: BadgeCheck },
         ].map(({ title, text, icon: Icon }) => (
           <div key={title} className="glass-card info-card">
             <Icon size={18} />
@@ -644,12 +738,13 @@ function CommunityPage() {
 }
 
 function CommunitySection({ compact = false }: { compact?: boolean }) {
+  const { t } = useTranslation()
   return (
     <section id="community" className={compact ? 'section-block container-fluid community-section compact' : 'section-block community-section'}>
       <SectionHeader
-        eyebrow="Community"
-        title="Life in Dhadheru"
-        description="An editable collection of village life, people, services and local knowledge. Entries needing confirmation are clearly marked."
+        eyebrow={t('community.eyebrow')}
+        title={t('community.title')}
+        description={t('community.subtitle')}
       />
       <div className="community-grid">
         {communityTopics.map((topic, index) => {
@@ -664,8 +759,8 @@ function CommunitySection({ compact = false }: { compact?: boolean }) {
               transition={{ delay: index * 0.035 }}
             >
               <span className="community-card-icon"><Icon size={19} /></span>
-              <h3>{topic.title}</h3>
-              <p>{topic.text}</p>
+              <h3>{t(communityTitleKeys[topic.id])}</h3>
+              <p>{t(communityDescriptionKeys[topic.id])}</p>
             </motion.article>
           )
         })}
@@ -675,43 +770,45 @@ function CommunitySection({ compact = false }: { compact?: boolean }) {
 }
 
 function PhotoPlaceholder({ label, featured = false }: { label: string; featured?: boolean }) {
+  const { t } = useTranslation()
   return (
-    <div className={featured ? 'photo-placeholder featured' : 'photo-placeholder'} role="img" aria-label={`${label} photo placeholder`}>
+    <div className={featured ? 'photo-placeholder featured' : 'photo-placeholder'} role="img" aria-label={label}>
       <div className="placeholder-sun" />
       <div className="placeholder-ridge ridge-back" />
       <div className="placeholder-ridge ridge-front" />
       <div className="placeholder-label">
         <MapPin size={16} />
-        <span>PHOTO PLACEHOLDER</span>
+        <span>{t('gallery.eyebrow')}</span>
         <strong>{label}</strong>
-        <small>Replace with a verified, community-provided or licensed image.</small>
+        <small>{t('gallery.replaceImage')}</small>
       </div>
     </div>
   )
 }
 
 function PlacesPage() {
+  const { t } = useTranslation()
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="container-fluid page-content">
       <SectionHeader
-        eyebrow="Places"
-        title="Important places in Dhadheru Bhamuwan"
-        description="Location references supplied from government listings. Confirm current service details locally; unverified schools and religious sites are intentionally not listed."
+        eyebrow={t('places.eyebrow')}
+        title={t('places.title')}
+        description={t('places.subtitle')}
       />
 
       <div className="place-grid large">
         {places.map((place) => (
           <article key={place.id} className="place-card place-card-large">
-            {place.image ? <img src={place.image} alt={place.name} loading="lazy" /> : <PhotoPlaceholder label={place.imageLabel} />}
+            {place.image ? <img src={place.image} alt={t(placeTitleKeys[place.id])} loading="lazy" /> : <PhotoPlaceholder label={t(placePhotoKeys[place.id])} />}
             <div className="place-card-body">
-              <span className="badge">{place.category}</span>
-              <h3>{place.name}</h3>
-              <p>{place.description}</p>
+              <span className="badge">{t(placeCategoryKeys[place.id])}</span>
+              <h3>{t(placeTitleKeys[place.id])}</h3>
+              <p>{t(placeDescriptionKeys[place.id])}</p>
               <div className="place-meta">
                 <MapPin size={14} />
-                <span>{place.location}</span>
+                <span>{t(placeLocationKeys[place.id])}</span>
               </div>
-              <span className="place-verification-note">Local details are being confirmed.</span>
+              <span className="place-verification-note">{t('places.confirming')}</span>
             </div>
           </article>
         ))}
@@ -721,6 +818,7 @@ function PlacesPage() {
 }
 
 function GalleryPage() {
+  const { t } = useTranslation()
   const [activeCategory, setActiveCategory] = useState<'All' | GalleryItem['category']>('All')
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const touchStartX = useRef(0)
@@ -778,9 +876,9 @@ function GalleryPage() {
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="container-fluid page-content">
       <SectionHeader
-        eyebrow="Gallery"
-        title="A visual story of Dhadheru"
-        description="Village scenes, cultural highlights, educational spaces, and community moments captured in a modern gallery format."
+        eyebrow={t('gallery.eyebrow')}
+        title={t('gallery.title')}
+        description={t('gallery.subtitle')}
       />
 
       <div className="category-filter">
@@ -791,7 +889,7 @@ function GalleryPage() {
             className={activeCategory === category ? 'filter-chip active' : 'filter-chip'}
             onClick={() => { setActiveCategory(category); setSelectedIndex(null) }}
           >
-            {category}
+            {t(category === 'All' ? 'gallery.all' : galleryCategoryKeys[category])}
           </button>
         ))}
       </div>
@@ -799,13 +897,14 @@ function GalleryPage() {
       <div className="gallery-grid">
         {filteredItems.map((item, index) => (
           <button key={item.id} type="button" className={index % 7 === 0 ? 'gallery-item featured' : 'gallery-item'} onClick={() => openImage(index)}>
-            {item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : <PhotoPlaceholder label={item.title} />}
+            {item.image ? <img src={item.image} alt={t(galleryTitleKeys[item.id])} loading="lazy" /> : <PhotoPlaceholder label={t(galleryTitleKeys[item.id])} />}
             <span className="gallery-item-meta">
-              <small>{item.category}</small>
-              <strong>{item.title}</strong>
+              <small>{t(galleryCategoryKeys[item.category])}</small>
+              <strong>{t(galleryTitleKeys[item.id])}</strong>
             </span>
           </button>
         ))}
+        {!filteredItems.length ? <p className="empty-content-note">{t('gallery.emptyCategory')}</p> : null}
       </div>
 
       <AnimatePresence>
@@ -830,18 +929,18 @@ function GalleryPage() {
               exit={{ scale: 0.94, opacity: 0 }}
               onClick={(event) => event.stopPropagation()}
             >
-              <button type="button" className="lightbox-close" onClick={closeImage} aria-label="Close lightbox">
+              <button type="button" className="lightbox-close" onClick={closeImage} aria-label={t('gallery.close')}>
                 <X size={18} />
               </button>
-              {currentImage.image ? <img src={currentImage.image} alt={currentImage.title} /> : <PhotoPlaceholder label={currentImage.title} featured />}
+              {currentImage.image ? <img src={currentImage.image} alt={t(galleryTitleKeys[currentImage.id])} /> : <PhotoPlaceholder label={t(galleryTitleKeys[currentImage.id])} featured />}
               <div className="lightbox-content">
-                <span>{currentImage.category}</span>
-                <h3>{currentImage.title}</h3>
-                <p>{currentImage.description}</p>
+                <span>{t(galleryCategoryKeys[currentImage.category])}</span>
+                <h3>{t(galleryTitleKeys[currentImage.id])}</h3>
+                <p>{t('gallery.replaceImage')}</p>
               </div>
               <div className="lightbox-controls">
-                <button type="button" onClick={showPrevious}>Previous</button>
-                <button type="button" onClick={showNext}>Next</button>
+                <button type="button" onClick={showPrevious}>{t('gallery.previous')}</button>
+                <button type="button" onClick={showNext}>{t('gallery.next')}</button>
               </div>
             </motion.div>
           </motion.div>
@@ -852,6 +951,7 @@ function GalleryPage() {
 }
 
 function ReviewsPage() {
+  const { t, formatDate, formatNumber } = useTranslation()
   const { reviews } = useOutletContext<OutletContext>()
   const approvedReviews = reviews.filter((item) => item.status === 'approved')
   const averageRating = approvedReviews.length
@@ -861,23 +961,23 @@ function ReviewsPage() {
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="container-fluid page-content">
       <SectionHeader
-        eyebrow="Reviews"
-        title="What Our Community Says"
-        description="Reviews are shared by users and shown publicly only after admin approval."
+        eyebrow={t('reviews.eyebrow')}
+        title={t('reviews.title')}
+        description={t('reviews.subtitle')}
       />
 
       <div className="review-summary">
         <div className="summary-card">
-          <span>Total reviews</span>
-          <strong>{approvedReviews.length}</strong>
+          <span>{t('reviews.total')}</span>
+          <strong>{formatNumber(approvedReviews.length)}</strong>
         </div>
         <div className="summary-card">
-          <span>Average rating</span>
-          <strong>{averageRating.toFixed(1)}</strong>
+          <span>{t('reviews.average')}</span>
+          <strong>{formatNumber(Number(averageRating.toFixed(1)))}</strong>
         </div>
         <div className="summary-card">
-          <span>Approved reviews</span>
-          <strong>{approvedReviews.length}</strong>
+          <span>{t('reviews.approved')}</span>
+          <strong>{formatNumber(approvedReviews.length)}</strong>
         </div>
       </div>
 
@@ -888,7 +988,7 @@ function ReviewsPage() {
               <div>
                 <span className="review-avatar" aria-hidden="true">{review.name.trim().slice(0, 1).toUpperCase()}</span>
                 <div><strong>{review.name}</strong>
-                <span>{review.category}</span>
+                <span>{translateCategory(review.category, t)}</span>
                 </div>
               </div>
               <div className="stars">
@@ -906,18 +1006,19 @@ function ReviewsPage() {
               </div>
             ) : null}
             <div className="review-footer">
-              <small>{new Date(review.submittedAt).toLocaleDateString()}</small>
-              <span className="review-approved-label"><BadgeCheck size={14} /> Approved</span>
+              <small>{formatDate(review.submittedAt)}</small>
+              <span className="review-approved-label"><BadgeCheck size={14} /> {t('reviews.approvedBadge')}</span>
             </div>
           </article>
         ))}
-        {!approvedReviews.length ? <p className="empty-content-note">No approved reviews yet. Share a firsthand experience to start the community collection.</p> : null}
+        {!approvedReviews.length ? <p className="empty-content-note">{t('reviews.empty')}</p> : null}
       </div>
     </motion.div>
   )
 }
 
 function ShareExperiencePage() {
+  const { t } = useTranslation()
   const { setReviews, notify } = useOutletContext<OutletContext>()
   const [form, setForm] = useState({
     name: '',
@@ -945,7 +1046,7 @@ function ShareExperiencePage() {
     const files = Array.from(event.target.files ?? []).slice(0, 4)
     const validFiles = files.filter((file) => file.size <= 512 * 1024)
     if (validFiles.length !== files.length) {
-      notify('Photo size limit', 'Choose photos under 512 KB each. Up to four photos can be attached.')
+      notify(t('form.photoLimitTitle'), t('form.photoLimitMessage'))
     }
     setSelectedFiles(validFiles)
   }
@@ -954,12 +1055,12 @@ function ShareExperiencePage() {
     event.preventDefault()
 
     if (!form.name.trim()) {
-      notify('Missing details', 'Please enter your name before submitting.')
+      notify(t('form.missingNameTitle'), t('form.missingNameMessage'))
       return
     }
 
     if (!form.review.trim() || form.review.trim().length < 15) {
-      notify('Review too short', 'Please share a more detailed review before submitting.')
+      notify(t('form.shortReviewTitle'), t('form.shortReviewMessage'))
       return
     }
 
@@ -976,12 +1077,12 @@ function ShareExperiencePage() {
         imagePaths,
       })
     } catch {
-      notify('Photo upload failed', 'The selected photos could not be saved. Please try smaller images or continue without photos.')
+      notify(t('form.photoFailedTitle'), t('form.photoFailedMessage'))
       return
     }
 
     setReviews((current) => [result, ...current])
-    notify('Review submitted', 'Your experience has been saved locally and is awaiting review.')
+    notify(t('form.reviewSubmittedTitle'), t('form.reviewSubmittedMessage'))
     setForm({ name: '', email: '', phone: '', review: '', category: 'Community', rating: 5 })
     setSelectedFiles([])
   }
@@ -989,49 +1090,49 @@ function ShareExperiencePage() {
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="container-fluid page-content">
       <SectionHeader
-        eyebrow="Share your story"
-        title="Share your experience about Dhadheru"
-        description="Tell the community what stands out, what feels special, and what you would love others to know."
+        eyebrow={t('share.eyebrow')}
+        title={t('share.title')}
+        description={t('share.subtitle')}
       />
 
       <div className="share-layout">
         <form className="experience-form" onSubmit={handleSubmit}>
           <div className="form-grid">
             <label>
-              <span>Name</span>
+              <span>{t('form.name')}</span>
               <input value={form.name} onChange={(event) => updateField('name', event.target.value)} required />
             </label>
             <label>
-              <span>Email / Mobile</span>
+              <span>{t('form.emailMobile')}</span>
               <input value={form.email} onChange={(event) => updateField('email', event.target.value)} />
             </label>
           </div>
 
           <label>
-            <span>Review</span>
+            <span>{t('form.review')}</span>
             <textarea
               rows={6}
               value={form.review}
               onChange={(event) => updateField('review', event.target.value)}
               maxLength={500}
-              placeholder="Tell us about your experience with Dhadheru..."
+              placeholder={t('form.reviewPlaceholder')}
             />
           </label>
 
           <div className="meta-row">
             <label>
-              <span>Category</span>
+              <span>{t('form.category')}</span>
               <select value={form.category} onChange={(event) => updateField('category', event.target.value)}>
-                {['Village', 'School', 'Hospital', 'Temple', 'Nature', 'Events', 'Community', 'Other'].map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                {reviewCategoryOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {t(option.key)}
                   </option>
                 ))}
               </select>
             </label>
 
             <div className="rating-block">
-              <span>Rating</span>
+              <span>{t('form.rating')}</span>
               <div className="stars-selector">
                 {Array.from({ length: 5 }, (_, index) => (
                   <button
@@ -1048,24 +1149,24 @@ function ShareExperiencePage() {
           </div>
 
           <div className="upload-box">
-            <label className="upload-label">
+            <label className="upload-label" htmlFor="review-photo-upload">
               <UploadCloud size={18} />
-              Upload photos
+              {t('form.uploadPhotos')}
             </label>
-            <input type="file" accept="image/*" multiple onChange={handleFileChange} />
+            <input id="review-photo-upload" className="review-photo-input" type="file" accept="image/*" multiple onChange={handleFileChange} />
           </div>
 
           {previewUrls.length ? (
             <div className="preview-grid">
               {previewUrls.map((url, index) => (
-                <img key={`${url}-${index}`} src={url} alt="Review upload preview" />
+                <img key={`${url}-${index}`} src={url} alt={t('form.uploadPhotos')} />
               ))}
             </div>
           ) : null}
 
           <div className="form-actions">
             <button type="submit" className="primary-button">
-              Submit Review <ArrowRight size={16} />
+              {t('form.submitReview')} <ArrowRight size={16} />
             </button>
           </div>
         </form>
@@ -1076,6 +1177,7 @@ function ShareExperiencePage() {
 }
 
 function AdminLoginPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
@@ -1085,7 +1187,7 @@ function AdminLoginPage() {
     const valid = loginAdmin(form.username, form.password)
 
     if (!valid) {
-      setError('Invalid local admin credentials.')
+      setError(t('admin.invalidCredentials'))
       return
     }
 
@@ -1101,22 +1203,22 @@ function AdminLoginPage() {
       <div className="login-card glass-card">
         <div className="login-header">
           <ShieldCheck size={26} />
-          <h2>Admin access</h2>
+          <h2>{t('admin.login')}</h2>
         </div>
-        <p>This is a local mock admin login for development only.</p>
+        <p>{t('admin.mockNotice')}</p>
 
         <form onSubmit={handleSubmit} className="login-form">
           <label>
-            <span>Username</span>
+            <span>{t('admin.username')}</span>
             <input value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value })} />
           </label>
           <label>
-            <span>Password</span>
+            <span>{t('admin.password')}</span>
             <input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
           </label>
           {error ? <p className="error-text">{error}</p> : null}
           <button type="submit" className="primary-button">
-            Sign in <ArrowRight size={16} />
+            {t('admin.signIn')} <ArrowRight size={16} />
           </button>
         </form>
       </div>
@@ -1125,6 +1227,7 @@ function AdminLoginPage() {
 }
 
 function AdminPage() {
+  const { t, formatNumber, formatDate } = useTranslation()
   const navigate = useNavigate()
   const { reviews, setReviews, mediaSubmissions, setMediaSubmissions } = useOutletContext<OutletContext>()
   const [activeTab, setActiveTab] = useState<'dashboard' | 'reviews' | 'photos' | 'media' | 'live-capture' | 'content'>('dashboard')
@@ -1174,11 +1277,11 @@ function AdminPage() {
   })
 
   const dashboardCards = [
-    { label: 'Total Users', value: 'Not tracked' },
-    { label: 'Total Reviews', value: reviews.length },
-    { label: 'Total Photos', value: photoItems.length + captureTotals.photos },
-    { label: 'Total Audio Clips', value: captureTotals.audio },
-    { label: 'Active Sessions', value: captureTotals.activeSessions },
+    { label: t('admin.users'), value: t('admin.notTracked') },
+    { label: t('admin.totalReviews'), value: formatNumber(reviews.length) },
+    { label: t('admin.totalPhotos'), value: formatNumber(photoItems.length + captureTotals.photos) },
+    { label: t('admin.audioClips'), value: formatNumber(captureTotals.audio) },
+    { label: t('admin.activeSessions'), value: formatNumber(captureTotals.activeSessions) },
   ]
 
   const handleStatus = (id: string, status: ReviewStatus) => {
@@ -1225,8 +1328,8 @@ function AdminPage() {
     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="container-fluid page-content admin-page">
       <div className="admin-header-row">
         <div>
-          <span className="eyebrow">Admin dashboard</span>
-          <h2>Village Dhadheru control center</h2>
+          <span className="eyebrow">{t('admin.eyebrow')}</span>
+          <h2>{t('admin.title')}</h2>
         </div>
         <button
           type="button"
@@ -1236,18 +1339,18 @@ function AdminPage() {
             navigate('/admin/login', { replace: true })
           }}
         >
-          Logout
+          {t('admin.logout')}
         </button>
       </div>
 
       <div className="admin-tabs">
         {[
-          ['dashboard', 'Dashboard'],
-          ['reviews', 'Reviews'],
-          ['photos', 'Photos'],
-          ['media', 'Media'],
-          ['live-capture', 'Live Capture Submissions'],
-          ['content', 'Content'],
+          ['dashboard', t('admin.dashboard')],
+          ['reviews', t('admin.reviews')],
+          ['photos', t('admin.photos')],
+          ['media', t('admin.media')],
+          ['live-capture', t('admin.liveCapture')],
+          ['content', t('admin.content')],
         ].map(([tab, label]) => (
           <button key={tab} type="button" className={activeTab === tab ? 'tab-button active' : 'tab-button'} onClick={() => setActiveTab(tab as typeof activeTab)}>
             {label}
@@ -1268,9 +1371,9 @@ function AdminPage() {
 
           <div className="recent-panel glass-card">
             <div className="panel-head">
-              <h3>Recent submissions</h3>
+              <h3>{t('admin.recent')}</h3>
               <button type="button" className="secondary-button small-button" onClick={handleExportCsv}>
-                <Download size={14} /> Export Reviews CSV
+                <Download size={14} /> {t('admin.exportCsv')}
               </button>
             </div>
             <div className="recent-list">
@@ -1295,13 +1398,13 @@ function AdminPage() {
               type="text"
               value={reviewSearch}
               onChange={(event) => setReviewSearch(event.target.value)}
-              placeholder="Search reviews"
+              placeholder={t('admin.searchReviews')}
             />
             <select value={reviewFilter} onChange={(event) => setReviewFilter(event.target.value as 'all' | ReviewStatus)}>
-              <option value="all">All</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">{t('admin.all')}</option>
+              <option value="pending">{t('status.pending')}</option>
+              <option value="approved">{t('status.approved')}</option>
+              <option value="rejected">{t('status.rejected')}</option>
             </select>
           </div>
 
@@ -1310,18 +1413,18 @@ function AdminPage() {
               <div key={review.id} className="admin-review-row glass-card">
                 <div className="review-meta">
                   <strong>{review.name}</strong>
-                  <span>{review.category}</span>
+                  <span>{translateCategory(review.category, t)}</span>
                 </div>
                 <p>{review.review}</p>
                 <div className="review-meta-row">
                   <span>Rating: {review.rating}</span>
-                  <span>{new Date(review.submittedAt).toLocaleDateString()}</span>
+                  <span>{formatDate(review.submittedAt)}</span>
                 </div>
                 <div className="review-actions">
-                  <button type="button" onClick={() => handleStatus(review.id, 'approved')}>Approve</button>
-                  <button type="button" onClick={() => handleStatus(review.id, 'rejected')}>Reject</button>
+                  <button type="button" onClick={() => handleStatus(review.id, 'approved')}>{t('admin.approve')}</button>
+                  <button type="button" onClick={() => handleStatus(review.id, 'rejected')}>{t('admin.reject')}</button>
                   <button type="button" className="danger" onClick={() => handleDeleteReview(review.id)}>
-                    <Trash2 size={14} /> Delete
+                    <Trash2 size={14} /> {t('common.delete')}
                   </button>
                 </div>
               </div>
@@ -1335,12 +1438,12 @@ function AdminPage() {
           <div className="photo-grid">
             {photoItems.map((item) => (
               <div key={item.id} className="photo-card glass-card">
-                <button type="button" className="admin-photo-preview" onClick={() => setSelectedAdminPhoto({ image: item.image, name: item.name })} aria-label={`Preview photo from ${item.name}`}>
-                  <img src={item.image} alt={`Shared by ${item.name}`} loading="lazy" />
+                <button type="button" className="admin-photo-preview" onClick={() => setSelectedAdminPhoto({ image: item.image, name: item.name })} aria-label={t('admin.previewPhoto')}>
+                  <img src={item.image} alt={t('admin.previewPhoto')} loading="lazy" />
                 </button>
                 <div>
                   <strong>{item.name}</strong>
-                  <label className="photo-category-field"><span>Category</span><select value={item.category} onChange={(event) => {
+                  <label className="photo-category-field"><span>{t('admin.category')}</span><select value={item.category} onChange={(event) => {
                     updateReviewPhotoCategory(item.reviewId, item.imageIndex, event.target.value)
                     setReviews((current) => current.map((review) => {
                       if (review.id !== item.reviewId) return review
@@ -1348,13 +1451,13 @@ function AdminPage() {
                       imageCategories[item.imageIndex] = event.target.value
                       return { ...review, imageCategories }
                     }))
-                  }} aria-label={`Category for ${item.name}'s photo`}>{['Village', 'Village Life', 'Rajasthan Landscape', 'Community', 'School', 'Healthcare', 'Temples', 'Roads & Infrastructure', 'Nature', 'Events', 'Other'].map((category) => <option key={category}>{category}</option>)}</select></label>
+                  }} aria-label={t('admin.category')}>{adminPhotoCategoryOptions.map((option) => <option key={option.value} value={option.value}>{t(option.key)}</option>)}</select></label>
                 </div>
-                <button type="button" className="danger-button photo-delete-button" onClick={() => handleDeleteReviewPhoto(item.reviewId, item.imageIndex)}><Trash2 size={14} /> Delete</button>
+                <button type="button" className="danger-button photo-delete-button" onClick={() => handleDeleteReviewPhoto(item.reviewId, item.imageIndex)}><Trash2 size={14} /> {t('common.delete')}</button>
               </div>
             ))}
           </div>
-          {!photoItems.length ? <p className="empty-content-note">No community photos have been shared yet.</p> : null}
+          {!photoItems.length ? <p className="empty-content-note">{t('admin.photoEmpty')}</p> : null}
         </div>
       ) : null}
 
@@ -1362,9 +1465,9 @@ function AdminPage() {
         {selectedAdminPhoto ? (
           <motion.div className="lightbox-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedAdminPhoto(null)}>
             <motion.div className="lightbox admin-photo-lightbox" initial={{ scale: 0.97 }} animate={{ scale: 1 }} onClick={(event) => event.stopPropagation()}>
-              <button type="button" className="lightbox-close" onClick={() => setSelectedAdminPhoto(null)} aria-label="Close photo preview"><X size={18} /></button>
-              <img src={selectedAdminPhoto.image} alt={`Photo shared by ${selectedAdminPhoto.name}`} />
-              <div className="lightbox-content"><strong>Shared by {selectedAdminPhoto.name}</strong></div>
+              <button type="button" className="lightbox-close" onClick={() => setSelectedAdminPhoto(null)} aria-label={t('gallery.close')}><X size={18} /></button>
+              <img src={selectedAdminPhoto.image} alt={`${t('admin.previewPhoto')} ${selectedAdminPhoto.name}`} />
+              <div className="lightbox-content"><strong>{t('admin.previewPhoto')} · {selectedAdminPhoto.name}</strong></div>
             </motion.div>
           </motion.div>
         ) : null}
@@ -1385,10 +1488,10 @@ function AdminPage() {
               )}
               <div className="media-actions">
                 <a href={media.url} download target="_blank" rel="noreferrer">
-                  <Download size={14} /> Download
+                  <Download size={14} /> {t('admin.download')}
                 </a>
                 <button type="button" className="danger" onClick={() => handleDeleteMedia(media.id)}>
-                  <Trash2 size={14} /> Delete
+                  <Trash2 size={14} /> {t('common.delete')}
                 </button>
               </div>
             </div>
@@ -1401,31 +1504,31 @@ function AdminPage() {
       {activeTab === 'content' ? (
         <div className="admin-section admin-content-editor">
           <label>
-            <span>Intro</span>
+            <span>{t('about.intro')}</span>
             <textarea rows={4} value={contentDraft.intro} onChange={(event) => setContentDraft({ ...contentDraft, intro: event.target.value })} />
           </label>
           <label>
-            <span>Location</span>
+            <span>{t('about.location')}</span>
             <input value={contentDraft.location} onChange={(event) => setContentDraft({ ...contentDraft, location: event.target.value })} />
           </label>
           <label>
-            <span>Community</span>
+            <span>{t('about.community')}</span>
             <textarea rows={3} value={contentDraft.community} onChange={(event) => setContentDraft({ ...contentDraft, community: event.target.value })} />
           </label>
           <label>
-            <span>Education</span>
+            <span>{t('about.education')}</span>
             <textarea rows={3} value={contentDraft.education} onChange={(event) => setContentDraft({ ...contentDraft, education: event.target.value })} />
           </label>
           <label>
-            <span>Healthcare</span>
+            <span>{t('about.healthcare')}</span>
             <textarea rows={3} value={contentDraft.healthcare} onChange={(event) => setContentDraft({ ...contentDraft, healthcare: event.target.value })} />
           </label>
           <label>
-            <span>Religion</span>
+            <span>{t('about.religion')}</span>
             <textarea rows={3} value={contentDraft.religion} onChange={(event) => setContentDraft({ ...contentDraft, religion: event.target.value })} />
           </label>
           <button type="button" className="primary-button" onClick={saveVillageContent}>
-            Save changes
+            {t('admin.saved')}
           </button>
         </div>
       ) : null}
@@ -1439,6 +1542,20 @@ function SectionHeader({ eyebrow, title, description }: { eyebrow: string; title
       <span className="eyebrow">{eyebrow}</span>
       <h2>{title}</h2>
       <p>{description}</p>
+    </div>
+  )
+}
+
+function LanguageSwitcher() {
+  const { language, setLanguage, t } = useTranslation()
+  return (
+    <div className="language-switcher" role="group" aria-label={t('nav.language')}>
+      <button type="button" className={language === 'hi' ? 'active' : ''} aria-pressed={language === 'hi'} onClick={() => setLanguage('hi')}>
+        <span aria-hidden="true">🇮🇳</span> हिन्दी
+      </button>
+      <button type="button" className={language === 'en' ? 'active' : ''} aria-pressed={language === 'en'} onClick={() => setLanguage('en')}>
+        English
+      </button>
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { Check, ChevronRight, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { surveyCandidates } from '../data/surveyData'
 import { saveSurveyResponse } from '../services/surveyService'
+import { useTranslation } from '../i18n'
 
 export type OpinionSurveyModalProps = {
   isOpen: boolean
@@ -12,6 +13,7 @@ export type OpinionSurveyModalProps = {
 type Step = 'details' | 'opinion' | 'success'
 
 export function OpinionSurveyModal({ isOpen, onClose }: OpinionSurveyModalProps) {
+  const { t } = useTranslation()
   const [step, setStep] = useState<Step>('details')
   const [fullName, setFullName] = useState('')
   const [mobileNumber, setMobileNumber] = useState('')
@@ -84,40 +86,38 @@ export function OpinionSurveyModal({ isOpen, onClose }: OpinionSurveyModalProps)
             transition={{ duration: 0.25, ease: 'easeOut' }}
             onClick={(event) => event.stopPropagation()}
           >
-            <button type="button" className="survey-close-button" onClick={handleClose} aria-label="Close survey popup">
+            <button type="button" className="survey-close-button" onClick={handleClose} aria-label={t('common.close')}>
               <X size={16} />
             </button>
 
-            <div className="survey-progress" aria-label="Survey progress">
-              <span className={step === 'details' || step === 'opinion' || step === 'success' ? 'active' : ''}>1. Your Details</span>
-              <span className={step === 'opinion' || step === 'success' ? 'active' : ''}>2. Your Opinion</span>
+            <div className="survey-progress" aria-label={t('survey.title')}>
+              <span className={step === 'details' || step === 'opinion' || step === 'success' ? 'active' : ''}>1. {t('survey.fullName')}</span>
+              <span className={step === 'opinion' || step === 'success' ? 'active' : ''}>2. {t('survey.question')}</span>
             </div>
 
             {step === 'details' ? (
               <div className="survey-step">
-                <h2 id="survey-title">We’d love to hear your opinion</h2>
-                <p className="survey-intro">
-                  Your opinion matters to the Dhadheru community. Please share your preference for the upcoming Sarpanch election. This is a voluntary survey.
-                </p>
+                <h2 id="survey-title">{t('survey.title')}</h2>
+                <p className="survey-intro">{t('survey.intro')}</p>
 
                 <div className="survey-form-grid">
                   <label>
-                    <span>Full Name</span>
+                    <span>{t('survey.fullName')}</span>
                     <input
                       type="text"
                       value={fullName}
                       onChange={(event) => setFullName(event.target.value)}
-                      placeholder="Enter your full name"
+                      placeholder={t('survey.fullNamePlaceholder')}
                     />
                   </label>
 
                   <label>
-                    <span>Mobile Number</span>
+                    <span>{t('survey.mobile')}</span>
                     <input
                       type="tel"
                       value={mobileNumber}
                       onChange={(event) => setMobileNumber(event.target.value)}
-                      placeholder="Enter your mobile number"
+                      placeholder={t('survey.mobilePlaceholder')}
                     />
                   </label>
                 </div>
@@ -128,24 +128,20 @@ export function OpinionSurveyModal({ isOpen, onClose }: OpinionSurveyModalProps)
                     checked={consent}
                     onChange={(event) => setConsent(event.target.checked)}
                   />
-                  <span>
-                    I voluntarily agree to participate in this opinion survey and understand that my response will be recorded for survey purposes.
-                  </span>
+                  <span>{t('survey.consent')}</span>
                 </label>
 
                 <div className="survey-privacy-note">
-                  <strong>Why are we asking for your name and mobile number?</strong>
-                  <p>
-                    We collect this information only to confirm that the response is voluntary and to keep a local record of survey participation for community review. Your details are not shared or transmitted without your explicit consent in this local-development version.
-                  </p>
+                  <strong>{t('survey.privacyTitle')}</strong>
+                  <p>{t('survey.privacy')}</p>
                 </div>
 
                 <div className="survey-actions">
                   <button type="button" className="survey-secondary" onClick={handleClose}>
-                    Maybe Later
+                    {t('survey.maybeLater')}
                   </button>
                   <button type="button" className="survey-primary" disabled={isContinueDisabled} onClick={handleContinue}>
-                    Continue <ChevronRight size={16} />
+                    {t('survey.continue')} <ChevronRight size={16} />
                   </button>
                 </div>
               </div>
@@ -153,14 +149,12 @@ export function OpinionSurveyModal({ isOpen, onClose }: OpinionSurveyModalProps)
 
             {step === 'opinion' ? (
               <div className="survey-step">
-                <h2>Who would you prefer as the Sarpanch candidate?</h2>
-                <p className="survey-intro">
-                  Please select the candidate you would personally prefer for the position of Sarpanch. There is no right or wrong answer, and your participation is completely voluntary.
-                </p>
+                <h2>{t('survey.question')}</h2>
+                <p className="survey-intro">{t('survey.questionCopy')}</p>
 
                 <div className="candidate-list">
                   {!surveyCandidates.length ? (
-                    <p className="candidate-pending-note">Candidate details will appear after they are confirmed with the Dhadheru community.</p>
+                    <p className="candidate-pending-note">{t('survey.candidatePending')}</p>
                   ) : null}
                   {surveyCandidates.map((candidate) => (
                     <label key={candidate.id} className={selectedCandidate === candidate.id ? 'candidate-option selected' : 'candidate-option'}>
@@ -188,18 +182,18 @@ export function OpinionSurveyModal({ isOpen, onClose }: OpinionSurveyModalProps)
                       onChange={() => setSelectedCandidate('prefer-not-to-answer')}
                     />
                     <div className="candidate-info neutral">
-                      <strong>Prefer not to answer</strong>
-                      <span>I would rather not disclose a preference.</span>
+                      <strong>{t('survey.preferNot')}</strong>
+                      <span>{t('survey.preferNotText')}</span>
                     </div>
                   </label>
                 </div>
 
                 <div className="survey-actions">
                   <button type="button" className="survey-secondary" onClick={() => setStep('details')}>
-                    Back
+                    {t('survey.back')}
                   </button>
                   <button type="button" className="survey-primary" disabled={isSubmitDisabled} onClick={handleSubmit}>
-                    Submit Response
+                    {t('survey.submit')}
                   </button>
                 </div>
               </div>
@@ -210,13 +204,11 @@ export function OpinionSurveyModal({ isOpen, onClose }: OpinionSurveyModalProps)
                 <div className="success-icon">
                   <Check size={22} />
                 </div>
-                <h2>Thank you for sharing your opinion.</h2>
-                <p>
-                  Your response has been recorded successfully. We appreciate your participation in the Dhadheru community survey.
-                </p>
+                <h2>{t('survey.thankYou')}</h2>
+                <p>{t('survey.success')}</p>
 
                 <button type="button" className="survey-primary" onClick={handleClose}>
-                  Close
+                  {t('common.close')}
                 </button>
               </div>
             ) : null}
